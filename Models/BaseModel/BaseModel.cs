@@ -1,7 +1,10 @@
-﻿namespace PhoneBook_task.Models.BaseModel
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace PhoneBook_task.Models.BaseModel
 {
     public abstract class BaseModel
     {
-        int Id { get; set; }   
+        [Key]
+        public int Id { get; set; }   
     }
 }
