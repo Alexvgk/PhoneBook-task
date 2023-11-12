@@ -25,7 +25,7 @@ namespace PhoneBook_task.Controllers
             return View(contList.Result);
         }
 
-        public IActionResult Privacy()
+        public IActionResult Task()
         {
             return View();
         }
@@ -46,14 +46,15 @@ namespace PhoneBook_task.Controllers
                     return BadRequest("Failed to create contact");
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Обработка других исключений, если необходимо
                 return StatusCode(500, "Internal server error");
             }
         }
 
-            public Contact GetContactById(int id) {
+        public Contact GetContactById(int id) 
+        {
             var contact = Repo.GetDataById(id);
             return contact.Result;
         }
@@ -64,6 +65,14 @@ namespace PhoneBook_task.Controllers
             await Repo.DeleteContact(id);
             return Ok(new { id });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateContact(int id, [FromBody] DtoContact cont)
+        {
+            var resp =  await Repo.UpdateContact(id,cont);
+            return Ok(new { id });
+        }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
