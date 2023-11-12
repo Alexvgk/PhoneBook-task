@@ -2,11 +2,22 @@
     $("#submitContact").click(async function () {
         var formData = $("#createContactForm").serializeArray();
         var dataObject = {};
+        $("input").removeClass("is-invalid");
 
         formData.forEach(function (item) {
             dataObject[item.name] = item.value;
         });
-
+        if (!dataObject.Name) {
+            $("#createContactForm input[name='Name']").addClass("is-invalid");
+            return;
+        }
+        if (!dataObject.MobilePhone || dataObject.MobilePhone.length < 12) {
+            $("#createContactForm input[name='MobilePhone']").addClass("is-invalid");
+            return;
+        }
+        if (!dataObject.JobTitle) {
+            dataObject.JobTitle = 'Unemployed';
+        }
         try {
             var response = await $.ajax({
                 type: "POST",
@@ -16,19 +27,13 @@
             });
 
             console.log(response);
-            createContactInUI(response);
+            location.reload();
             $('#createContactModal').modal('hide');
         } catch (error) {
             console.error('Error:', error);
         }
     });
 });
-
-function createContactInUI(newContact) {
-    var newContactElement = $("<div>").addClass("contact").attr("id", "contact-" + newContact.Id);
-    newContactElement.append("<p>Name: " + newContact.Name + "</p>");
-    $("#contactsContainer").append(newContactElement);
-}
 
 
 $(document).ready(function () {
@@ -39,8 +44,9 @@ $(document).ready(function () {
             type: "GET",
             url: "/Contact/GetContactById?id=" + contactId,
             success: function (data) {
+                $("#editContactForm #Id").val(data.id);
                 $("#editContactForm #Name").val(data.name);
-                $("#editContactForm #MobilePhone").val(data.mobilePhone);
+                $("#editContactForm #EditMobilePhone").val(data.mobilePhone);
                 $("#editContactForm #JobTitle").val(data.jobTitle);
                 $("#editContactForm #Data").val(data.data);
 
@@ -54,6 +60,7 @@ $(document).ready(function () {
 
     $("#submitEditContact").click(function () {
         var formData = $("#editContactForm").serializeArray();
+
         var dataObject = {};
 
         formData.forEach(function (item) {
@@ -62,13 +69,13 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: "/Contact/EditContact",
+            url: "/Contact/UpdateContact?id=" + dataObject.Id,
             data: JSON.stringify(dataObject),
             contentType: "application/json; charset=UTF-8",
             success: function (data) {
                 console.log(data);
-
                 $('#editContactModal').modal('hide');
+                location.reload();
             },
             error: function (error) {
                 console.error('Error:', error);
@@ -97,3 +104,5 @@ $(document).ready(function () {
             });
         });
     });
+
+

@@ -8,13 +8,16 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"></script>
     <script src="/js/site.js"></script>
 </head>
 
 <div class="container p-3">
     <h2 class="text-primary">Contacts</h2>
     <div class="d-flex justify-content-end mb-3">
- <button type="button" class="btn btn-success" data-toggle="modal" data-target="#createContactModal">Добавить</button>
+ <button type="button" class="btn btn-success" data-toggle="modal" data-target="#createContactModal">New</button>
     </div>
 
     @if(Model.Count() > 0)
@@ -34,8 +37,8 @@
                     <div class="d-flex justify-content-end">
                         <button type="button" class="btn btn-primary mr-2 edit-contact"
                         data-toggle="modal" data-contact-id="@obj.Id"
-                        data-target="#editContactModal">Редактировать</button>
-                        <button type="button" class="btn btn-danger delete-contact" data-contact-id="@obj.Id">Удалить</button>
+                        data-target="#editContactModal">Edit</button>
+                        <button type="button" class="btn btn-danger delete-contact" data-contact-id="@obj.Id">Delete</button>
                     </div>
                 </div>
             </div>
@@ -62,16 +65,16 @@
                         <input type="text" class="form-control" name="Name" placeholder="Name" required>
                     </div>
                     <div class="form-group">
-                        <label for="mobilePhone">Phone number</label>
-                        <input type="text" class="form-control" name="MobilePhone" placeholder="+375*********" required>
+                        <label for="MobilePhone">Phone number</label>
+                        <input type="tel" class="form-control" name="MobilePhone" id="MobilePhone" required>
                     </div>
                     <div class="form-group">
-                        <label for="jobTitle">Job</label>
+                        <label for="jobTitle">Job*</label>
                         <input type="text" class="form-control" name="JobTitle" placeholder="Job">
                     </div>
                     <div class="form-group">
                         <label for="data">Date of birth</label>
-                        <input type="text" class="form-control" name="Data" placeholder="2000-10-10">
+                        <input type="date" class="form-control" name="Data" id="Data">
                     </div>
                     <button type="button" class="btn btn-primary" id="submitContact">Save</button>
                 </form>
@@ -89,12 +92,16 @@
             <div class="modal-body">
                 <form method="post" id="editContactForm">
                     <div class="form-group">
+                        <label for="EditId">Id</label>
+                        <input type="text" class="form-control" name="Id" id="Id" readonly required>
+                    </div>
+                    <div class="form-group">
                         <label for="EditName">Name</label>
-                        <input type="text" class="form-control" name="EditName" id="Name" required>
+                        <input type="text" class="form-control" name="Name" id="Name" required>
                     </div>
                     <div class="form-group">
                         <label for="EditMobilePhone">Phone number</label>
-                        <input type="text" class="form-control" name="MobilePhone" id="MobilePhone" required>
+                        <input type="tel" class="form-control" name="MobilePhone" id="EditMobilePhone" required>
                     </div>
                     <div class="form-group">
                         <label for="EditJobTitle">Job</label>
@@ -102,7 +109,7 @@
                     </div>
                     <div class="form-group">
                         <label for="EditData">Date of birth</label>
-                        <input type="text" class="form-control" name="Data" id="Data">
+                        <input type="date" class="form-control" name="Data" id="Data">
                     </div>
                     <button type="button" class="btn btn-primary" id="submitEditContact">Save</button>
                 </form>
@@ -110,3 +117,11 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('MobilePhone').addEventListener('input', function (event) {
+        var cleanedValue = this.value.replace(/\D/g, '');
+
+         this.value = '+375(' + cleanedValue.slice(3, 5) + ')' + cleanedValue.slice(5,12);
+    });
+</script>
