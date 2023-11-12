@@ -5,7 +5,7 @@ namespace PhoneBook_task.Repository
 {
     public interface IBaseRepository<Model> where Model : BaseModel
     {
-        Task<Model> getData();
+        Task<IEnumerable<Model>> getData();
         Task<Model> GetDataById(int id);
         Task<bool> CreateContact(DtoContact contact);
         Task<bool> UpdateContact(int id, DtoContact updateContact);

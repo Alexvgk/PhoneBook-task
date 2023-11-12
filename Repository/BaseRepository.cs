@@ -1,4 +1,6 @@
-﻿using AutoMapper;
+﻿using Abp.Domain.Uow;
+using Abp.Threading.Extensions;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using PhoneBook_task.DTO;
 using PhoneBook_task.Models;
@@ -8,51 +10,141 @@ using System;
 
 namespace PhoneBook_task.Repository
 {
-    public class ContactRepository<TDbModel> : IBaseRepository<TDbModel> where TDbModel : BaseModel
+    public class BaseRepository<TDbModel> : IBaseRepository<TDbModel> where TDbModel : BaseModel
     {
-        private ContactDbContext Context { get; set; }
-        private IMapper Mapper { get; set; }
-        public ContactRepository(ContactDbContext context, IMapper mapper)
+        private readonly ContactDbContext _context;
+        private IMapper _mapper; 
+        public BaseRepository(ContactDbContext context, IMapper mapper)
         {
-            this.Mapper = mapper;
-            Context = context;
+            _mapper = mapper;
+            _context = context;
         }
 
         public async Task<bool> CreateContact(DtoContact contact)
         {
             try
             {
-                var cont = Mapper.Map<TDbModel>(contact);
-                //Context.Set<TDbModel>().Add(cont);
-                //await Context.SaveChangesAsync();
-
+                var cont = _mapper.Map<TDbModel>(contact);
+                await _context.AddAsync(cont);
+                await _context.SaveChangesAsync();
                 return true;
+            }
+            catch (ArgumentNullException ex)
+            {
+                throw ex;
+
+            }
+            catch (ArgumentException ex)
+            {
+                throw ex;
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw ex;
             }
             catch (Exception ex)
             {
-                // Обработка ошибок, например, логирование
-                return false;
+                throw new Exception($"Internal server error: {ex}");
             }
         }
 
-        public Task<bool> DeleteContact(int id)
+
+        public async Task<bool> DeleteContact(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var contact = await _context.Contacts.FindAsync(id);
+
+                if (contact == null)
+                {
+                    throw new InvalidOperationException($"Record with id {id} not found.");
+                }
+
+                _context.Contacts.Remove(contact);
+
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Internal server error: {ex.Message}", ex);
+            }
         }
 
-        public Task<TDbModel> getData()
+        public async Task<IEnumerable<TDbModel>> getData()
         {
-            throw new NotImplementedException();
+            try
+            {
+                var data = await _context.Set<TDbModel>().ToListAsync();
+                return data;
+            }
+            catch (InvalidOperationException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Internal server error: {ex}");
+            }
         }
 
-        public Task<TDbModel> GetDataById(int id)
+        public async Task<TDbModel> GetDataById(int id)
         {
-            throw new NotImplementedException();
+            try
+            {
+
+                var contact = await _context.Set<TDbModel>().FindAsync(id);
+
+                if (contact == null)
+                {
+                    throw new ArgumentNullException($"No contact with id {id}");
+                }
+
+                return contact;
+            }
+            catch (ArgumentNullException ex)
+            {
+                throw ex;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Internal server error: {ex}");
+            }
         }
 
-        public Task<bool> UpdateContact(int id, DtoContact update)
+        public async Task<bool> UpdateContact(int id, DtoContact update)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var contact = await _context.Set<TDbModel>().FindAsync(id);
+
+                if (contact == null)
+                {
+                    return false;
+                }
+
+                contact = _mapper.Map<TDbModel>(contact);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                return false;
+            }
+            catch (DbUpdateException)
+            {
+                return false;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Internal server error: {ex}");
+            }
         }
 
     }
