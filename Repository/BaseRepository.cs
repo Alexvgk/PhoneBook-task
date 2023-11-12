@@ -128,7 +128,7 @@ namespace PhoneBook_task.Repository
                     return false;
                 }
 
-                contact = _mapper.Map<TDbModel>(contact);
+                contact = _mapper.Map(update, contact);
                 await _context.SaveChangesAsync();
 
                 return true;
