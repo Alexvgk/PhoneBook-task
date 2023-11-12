@@ -7,8 +7,7 @@ namespace PhoneBook_task.Services
     {
         public ContactDbContext(DbContextOptions<ContactDbContext> options) :base(options)
         {
-            Database.EnsureDeleted();  
-            Database.EnsureCreated();   
+  
         }
 
         public DbSet<Contact> Contacts { get; set; } = null!;
