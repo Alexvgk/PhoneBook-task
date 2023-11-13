@@ -1,7 +1,7 @@
 ﻿$(document).ready(function () {
     $("#submitContact").click(async function () {
-        var formData = $("#createContactForm").serializeArray();
-        var dataObject = {};
+        let formData = $("#createContactForm").serializeArray();
+        let dataObject = {};
         $("input").removeClass("is-invalid");
 
         formData.forEach(function (item) {
@@ -11,15 +11,11 @@
             $("#createContactForm input[name='Name']").addClass("is-invalid");
             return;
         }
-        if (!dataObject.MobilePhone || dataObject.MobilePhone.length < 12) {
-            $("#createContactForm input[name='MobilePhone']").addClass("is-invalid");
-            return;
-        }
         if (!dataObject.JobTitle) {
             dataObject.JobTitle = 'Unemployed';
         }
         try {
-            var response = await $.ajax({
+            let response = await $.ajax({
                 type: "POST",
                 url: "/Contact/Create",
                 data: JSON.stringify(dataObject),
@@ -38,7 +34,7 @@
 
 $(document).ready(function () {
     $(".edit-contact").click(function () {
-        var contactId = $(this).data("contact-id");
+        let contactId = $(this).data("contact-id");
 
         $.ajax({
             type: "GET",
@@ -59,9 +55,17 @@ $(document).ready(function () {
     });
 
     $("#submitEditContact").click(function () {
-        var formData = $("#editContactForm").serializeArray();
+        let formData = $("#editContactForm").serializeArray();
 
-        var dataObject = {};
+        if (!dataObject.Name) {
+            $("#createContactForm input[name='Name']").addClass("is-invalid");
+            return;
+        }
+        if (!dataObject.JobTitle) {
+            dataObject.JobTitle = 'Unemployed';
+        }
+
+        let dataObject = {};
 
         formData.forEach(function (item) {
             dataObject[item.name] = item.value;
@@ -88,7 +92,7 @@ $(document).ready(function () {
 
     $(document).ready(function () {
         $(".delete-contact").click(function () {
-            var contactId = $(this).data("contact-id");
+            let contactId = $(this).data("contact-id");
 
             $.ajax({
                 type: "POST",
@@ -106,3 +110,58 @@ $(document).ready(function () {
     });
 
 
+    $(document).ready(function () {
+        var input = document.querySelector("#MobilePhone");
+
+    var iti = window.intlTelInput(input, {
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+    initialCountry: "auto", 
+    geoIpLookup: function (callback) {
+        $.get('https://ipinfo.io', function () { }, 'jsonp').always(function (resp) {
+            var countryCode = (resp && resp.country) ? resp.country : "";
+            callback(countryCode);
+        });
+            },
+        });
+
+    input.addEventListener('input', function () {
+            var isValid = iti.isValidNumber();
+    $(this).toggleClass('is-invalid', !isValid);
+        });
+
+    $('#submitContact').click(function () {
+            var isValid = iti.isValidNumber();
+    if (!isValid) {
+        $("#MobilePhone").addClass("is-invalid");
+    return;
+            }
+        });
+    });
+
+    $(document).ready(function () {
+        var input = document.querySelector("#EditMobilePhone");
+
+    var iti = window.intlTelInput(input, {
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js",
+        initialCountry: "auto",
+        geoIpLookup: function (callback) {
+            $.get('https://ipinfo.io', function () { }, 'jsonp').always(function (resp) {
+                var countryCode = (resp && resp.country) ? resp.country : "";
+                callback(countryCode);
+            });
+        },
+    });
+
+    input.addEventListener('input', function () {
+        var isValid = iti.isValidNumber();
+        $(this).toggleClass('is-invalid', !isValid);
+    });
+
+        $('#submitEditContact').click(function () {
+        var isValid = iti.isValidNumber();
+        if (!isValid) {
+            $("#EditMobilePhone").addClass("is-invalid");
+            return;
+        }
+    });
+});
