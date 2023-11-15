@@ -68,7 +68,7 @@ namespace PhoneBook_task.Repository
             }
             catch (InvalidOperationException ex)
             {
-                throw;
+                throw ex ;
             }
             catch (Exception ex)
             {
