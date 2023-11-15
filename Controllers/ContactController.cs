@@ -21,8 +21,16 @@ namespace PhoneBook_task.Controllers
 
         public IActionResult All()
         {
-            var contList = Repo.getData();
-            return View(contList.Result);
+            try
+            {
+                var contList = Repo.getData();
+                return View(contList.Result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in All action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         public IActionResult Task()
@@ -46,33 +54,56 @@ namespace PhoneBook_task.Controllers
                     return BadRequest("Failed to create contact");
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Обработка других исключений, если необходимо
+                _logger.LogError($"Error in Create action: {ex.Message}");
                 return StatusCode(500, "Internal server error");
             }
         }
 
-        public Contact GetContactById(int id) 
+        public IActionResult GetContactById(int id)
         {
-            var contact = Repo.GetDataById(id);
-            return contact.Result;
+            try
+            {
+                var contact = Repo.GetDataById(id);
+                return Ok(contact.Result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in GetContactById action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteContact(int id)
         {
-            await Repo.DeleteContact(id);
-            return Ok(new { id });
+            try
+            {
+                await Repo.DeleteContact(id);
+                return Ok(new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in DeleteContact action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
 
         [HttpPost]
         public async Task<IActionResult> UpdateContact(int id, [FromBody] DtoContact cont)
         {
-            var resp =  await Repo.UpdateContact(id,cont);
-            return Ok(new { id });
+            try
+            {
+                var resp = await Repo.UpdateContact(id, cont);
+                return Ok(new { id });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error in UpdateContact action: {ex.Message}");
+                return StatusCode(500, "Internal server error");
+            }
         }
-
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
